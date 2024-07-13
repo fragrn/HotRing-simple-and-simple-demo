@@ -31,9 +31,7 @@ public:
 
             while (chrono::steady_clock::now() - minute_start < chrono::minutes(1)) {
                 put();
-                cout<<"put finished,now read start"<<endl;
                 read();
-                cout<<operations<<endl;
                 ++operations;
             }
 

@@ -34,9 +34,6 @@ void hotring::setMinMax(const unsigned int onecnt)
 }
 bool hotring::R_put(const string & key, const string & val)
 {
-    // 去重
-    // if (R_read(key) != nullptr) return false;
-
     unsigned int hashValue = hashFunction(key);
     unsigned int index = hashValue & this->sizemask;
     unsigned int tag = hashValue & (~this->sizemask);
@@ -44,23 +41,23 @@ bool hotring::R_put(const string & key, const string & val)
     htEntry *pre = nullptr;
     htEntry *nxt = nullptr;
 
-    // bool hotspotAware = false;
-    // ++this->r;
-    // if (this->r == this->R) {
-    //     hotspotAware = true;
-    //     this->r = 0;
-    // }
+    bool hotspotAware = false;
+    ++this->r;
+    if (this->r == this->R) {
+        hotspotAware = true;
+        this->r = 0;
+    }
 
     if (table[index] == nullptr) // 环中0项
     {
-        cout<<"0 item"<<endl;
+        // cout<<"0 item"<<endl;
         table[index] = newItem;
         newItem->setNext(newItem);
-        cout<<"0 item sloved"<<endl;
+        // cout<<"0 item sloved"<<endl;
     }
     else if (table[index]->getNext() == table[index]) // 环中1项
     {
-        cout<<"1 item"<<endl;
+        // cout<<"1 item"<<endl;
         if((*newItem)==(*table[index])){
             table[index]->setVal(newItem->getVal());
         }
@@ -74,24 +71,24 @@ bool hotring::R_put(const string & key, const string & val)
             table[index]->setNext(newItem);
             newItem->setNext(table[index]);
         }
-        cout<<"1 item solved"<<endl;
+        // cout<<"1 item solved"<<endl;
     }
     else
     {
         pre = table[index];
         nxt = table[index]->getNext();
-        while (!((*nxt)==(*table[index]))) {
+        while (true) {
             if((*pre)==(*newItem)){
-                // pre->setVal(newItem->getVal());
-                // newItem=pre;
-                cout<<"hit it"<<endl;
+                pre->setVal(newItem->getVal());
+                newItem=pre;
+                // cout<<"hit it"<<endl;
                 break;
             }
             if (((*pre) < (*newItem) && (*newItem) < (*nxt)) ||     //ordre_i-1 < order_k < order_i
                 ((*newItem) < (*nxt) && (*nxt) < (*pre))     ||     //order_k < order_i < order_i-1
                 ((*nxt) < (*pre) && (*pre) < (*newItem)))           //order_i < order_i-1 < order_k
             {
-                cout<<"put not found"<<endl;
+                // cout<<"put not found"<<endl;
                 newItem->setNext(nxt);
                 pre->setNext(newItem);
                 break;
@@ -99,9 +96,9 @@ bool hotring::R_put(const string & key, const string & val)
             nxt = nxt->getNext();
             pre = pre->getNext();
         }
-        // if(hotspotAware){
-        //     table[index]=newItem;//热点转移
-        // }
+        if(hotspotAware){
+            table[index]=newItem;//热点转移
+        }
     }
     return true;
 }
@@ -168,12 +165,12 @@ htEntry *hotring::R_read(const string & key)
     ++this->findcnt;
     if (table[index] == nullptr) // 环中0项
     {
-        cout<<"read,0 item"<<endl;
+        // cout<<"read,0 item"<<endl;
         res = nullptr;
     }
     else if (table[index]->getNext() == table[index]) // 环中1项
     {
-        cout<<"read, 1 item"<<endl;
+        // cout<<"read, 1 item"<<endl;
         if (key == table[index]->getKey())
         {
             res = table[index];
@@ -186,13 +183,13 @@ htEntry *hotring::R_read(const string & key)
     {
         pre = table[index];
         nxt = table[index]->getNext();
-        cout<<"read: enter the read loop"<<endl;
+        // cout<<"read: enter the read loop"<<endl;
         while (true) 
         {
             // if (pre->getKey() == key) 
             if((*pre)==(*compareItem))
             {
-                cout<<"read, hit it"<<endl;
+                // cout<<"read, hit it"<<endl;
                 if (hotspotAware) 
                 {
                     table[index] = pre;
@@ -209,7 +206,7 @@ htEntry *hotring::R_read(const string & key)
                 ((*nxt) < (*pre) && (*pre) < (*compareItem)))               //order_i < order_i-1 < order_k
                 //此时nxt在链表头部，pre在尾部
             {
-                cout<<"read not hit"<<endl;
+                // cout<<"read not hit"<<endl;
                 res = nullptr;
                 break;
             }
