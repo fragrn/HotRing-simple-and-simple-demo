@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <algorithm>
 #include <string>
 #include <vector>
+#include<iostream>
 using namespace std;
 
-class htEntry {
+class htEntry {  //表示哈希表中的一个条目。每个条目包含一个键值对以及一些辅助信息
 public:
 	htEntry(const string &k, const string &v, htEntry *n, unsigned int t, unsigned char o, unsigned char r):
 		key(k), val(v), next(n), tag(t), occupied(o), rehash(r) {}
@@ -31,17 +32,18 @@ public:
     unsigned char getRehash()const;
     void setRehash(const unsigned char r);
 
-    bool operator < (const htEntry &other);
-	
+    bool operator < (const htEntry &other);//重载小于运算符operator <，这个链表是从大到小排序的
+	bool operator == (const htEntry &other);
 
 private:
 	
 	string key;                 // 键
 	string val;                 // 值
 
-    unsigned int tag;           // tag值
+    unsigned int tag;           // tag值,先比较tag，如果tag相同再去比较key
     unsigned char occupied;     // 占用标识，多线程实现时启用
     unsigned char rehash;       // rehash标识
+    // int counter;
 
     htEntry *next;            // 指向下个哈希表节点，形成链表
 };
@@ -52,14 +54,16 @@ public:
     hotring(unsigned int sz);
     ~hotring();
 
-    //插入
-    bool insert(const string &key, const string &val);
+    //put
+    bool R_put(const string &key, const string &val);
+    bool S_put(const string &key, const string &val);
     //删除
     bool remove(const string &key);
     //更新
     bool update(const string &key, const string &val);
-    //查找
-    htEntry *search(const string &key);
+    //read
+    htEntry *R_read(const string &key);
+    htEntry *S_search(const string &key);
 
     unsigned int getfindcnt();
     unsigned int getmaxFindcnt();

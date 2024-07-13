@@ -1,4 +1,4 @@
-#include "hotring-r.h"
+﻿#include "hotring.h"
 
 ht::ht(unsigned int sz) :table(0), findcnt(0), minFindcnt(0x7fffffff), maxFindcnt(0)
 {
@@ -29,20 +29,25 @@ void ht::setMinMax(const unsigned int onecnt)
 
 bool ht::insert(const string & key, const string & val)
 {
-    // 去重
-    if (search(key) != nullptr) return false;
-
+    // htEntry * p=search(key);
+    // if(p!=nullptr){
+    //     p->setVal(val);//overwrite
+    // }
     unsigned int hashValue = hashFunction(key);
     unsigned int index = hashValue & this->sizemask;
-    unsigned int tag = hashValue & (~this->sizemask);
-    htEntry *newItem = new htEntry(key, val, nullptr, tag);
-    htEntry *pre = nullptr;
-    htEntry *nxt = nullptr;
+    htEntry *p = table[index];
+    while (p && p->getKey() != key) {
+        p = p->getNext();
+    }
+    if(p)p->setVal(val);//overwrite
+    else{
+        unsigned int tag = hashValue & (~this->sizemask);
+        htEntry *newItem = new htEntry(key, val, nullptr, tag);
 
-    //头插法插入
-    newItem->setNext(table[index]);
-    table[index] = newItem;
-    
+        //头插法插入
+        newItem->setNext(table[index]);
+        table[index] = newItem;
+    }
     return true;
 }
 
